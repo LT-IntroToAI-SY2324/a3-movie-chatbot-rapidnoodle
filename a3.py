@@ -15,6 +15,7 @@
 # who acted in %
 # when was % made
 # in what movies did % appear
+# who played in movies that were made in _
 # bye
 
 #  Include the movie database, named movie_db
@@ -198,6 +199,24 @@ def title_by_actor(matches: List[str]) -> List[str]:
     return result
 
 
+def actors_by_year(matches: List[str]) -> List[str]:
+    """Finds all actors that played in a movie that was made in a specific year
+
+    Args:
+        matches - a list of 1 string, just the year. Note that this year is passed as a
+            string and should be converted to an int
+
+    Returns:
+        a list of actors that played in movies in that year
+    """
+    result = []
+    for movie in movie_db:
+        if get_year(movie) == int(matches[0]):
+            for actor in get_actors(movie):
+                result.append(actor)
+    return result
+
+
 # dummy argument is ignored and doesn't matter
 def bye_action(dummy: List[str]) -> None:
     raise KeyboardInterrupt
@@ -218,6 +237,7 @@ pa_list: List[Tuple[List[str], Callable[[List[str]], List[Any]]]] = [
     (str.split("who acted in %"), actors_by_title),
     (str.split("when was % made"), year_by_title),
     (str.split("in what movies did % appear"), title_by_actor),
+    (str.split("who played in movies that were made in _"), actors_by_year),
     (["bye"], bye_action),
 ]
 
@@ -234,11 +254,13 @@ def search_pa_list(src: List[str]) -> List[str]:
         a list of answers. Will be ["I don't understand"] if it finds no matches and
         ["No answers"] if it finds a match but no answers
     """
-    result = []
+
     for pattern in pa_list:
-        if pattern[0] == src:
-            print(pattern)
-    return result
+        matched = match(pattern[0], src)
+        if matched == None: continue
+        result = pattern[1](matched)
+        return result if len(result) else ["No answers"]
+    return ["I don't understand"]
 
 
 def query_loop() -> None:
@@ -263,7 +285,7 @@ def query_loop() -> None:
 # uncomment the following line once you've written all of your code and are ready to try
 # it out. Before running the following line, you should make sure that your code passes
 # the existing asserts.
-# query_loop()
+query_loop()
 
 if __name__ == "__main__":
     assert isinstance(title_by_year(["1974"]), list), "title_by_year not returning a list"
@@ -275,6 +297,7 @@ if __name__ == "__main__":
     assert isinstance(actors_by_title(["jaws"]), list), "actors_by_title not returning a list"
     assert isinstance(year_by_title(["jaws"]), list), "year_by_title not returning a list"
     assert isinstance(title_by_actor(["orson welles"]), list), "title_by_actor not returning a list"
+    assert isinstance(actors_by_year(["2008"]), list), "actors_by_year not returning a list"
     
     assert sorted(title_by_year(["1974"])) == sorted(
         ["amarcord", "chinatown"]
@@ -286,7 +309,7 @@ if __name__ == "__main__":
         ["casablanca", "citizen kane", "gone with the wind", "metropolis"]
     ), "failed title_before_year test"
     assert sorted(title_after_year(["1990"])) == sorted(
-        ["boyz n the hood", "dead again", "the crying game", "flirting", "malcolm x"]
+        ["boyz n the hood", "dead again", "the crying game", "flirting", "iron man", "malcolm x"]
     ), "failed title_after_year test"
     assert sorted(director_by_title(["jaws"])) == sorted(
         ["steven spielberg"]
@@ -310,6 +333,14 @@ if __name__ == "__main__":
     assert sorted(title_by_actor(["orson welles"])) == sorted(
         ["citizen kane", "othello"]
     ), "failed title_by_actor test"
+    assert sorted(actors_by_year(["2008"])) == sorted(
+        [
+            "robert downey jr",
+            "jon favreau",
+            "gwyneth paltrol",
+            "jeff bridges",
+        ]
+    ), "failed actors_by_year test"
     assert sorted(search_pa_list(["hi", "there"])) == sorted(
         ["I don't understand"]
     ), "failed search_pa_list test 1"

@@ -386,6 +386,17 @@ movie_db: List[Tuple[str, str, int, List[str]]] = [
         ["timothy hutton", "john lone", "lindsay crouse"],
     ),
     (
+        "iron man",
+        "jon favreau",
+        2008,
+        [
+            "robert downey jr",
+            "jon favreau",
+            "gwyneth paltrol",
+            "jeff bridges",
+        ],
+    ),
+    (
         "jaws",
         "steven spielberg",
         1975,
